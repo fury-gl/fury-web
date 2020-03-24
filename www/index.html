@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="FURY Demo Server">
+    <meta name="author" content="FURY">
+    <!-- <link rel="icon" href="/_/favicon.png"> -->
+
+    <title>FURY Web demos</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/_/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/_/assets/custom.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <header>
+      <div class="navbar navbar-dark bg-dark">
+      </div>
+    </header>
+
+    <main role="main">
+
+      <section class="container title-separator">
+        <h2 class="jumbotron-heading text-left ">FURY / HORIZON WEB</h2>
+      </section>
+
+      <section class="container text-muted">
+        <p class="category-text">
+          FURY Web and Horizon Web, are demos to show interactive scientific visualization inside the Web browser. Those applications can leverage large data processing and rendering.
+        </p>
+      </section>
+
+
+      <div class="text-muted">
+        <div class="container">
+          <div class="row">
+            <div class="card" style="width: 50%;" data-link-location="horizon">
+              <h2 class="jumbotron-heading text-center">HORIZON WEB</h2>
+              <img style="width: 100%;" src="/_/assets/horizon.jpg" alt="DIPY - HORIZON">
+              <p class="card-text">
+                A powerful medical tools to analyse brain bundle.
+              </p>
+            </div>
+            <div class="card" style="width: 50%;" data-link-location="fury">
+              <h2 class="jumbotron-heading text-center" style="color: #444;">FURY WEB</h2>
+              <img style="width: 100%;" src="/_/assets/fury.png" alt="FURY - Demos">
+              <p class="card-text">
+                Collection of FURY tutorial to show the library capabilities.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/_/js/jquery-slim.min.js"></script>
+
+    <script type="text/javascript">
+      function handleCellClick(evt) {
+        let el = evt.target;
+        while (!el.getAttribute('data-link-location')) {
+          el = el.parentNode;
+        }
+        window.location = el.getAttribute('data-link-location');
+      }
+      var clickableCells = document.querySelectorAll('.card');
+      for (var i = 0; i < clickableCells.length; i += 1) {
+        clickableCells[i].style.cursor = 'pointer';
+        clickableCells[i].addEventListener('click', handleCellClick);
+      }
+    </script>
+    <script src="/_/js/bootstrap.min.js"></script>
+  </body>
+</html>
