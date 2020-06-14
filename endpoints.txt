@@ -1,8 +1,8 @@
-pvw/glance /opt/paraview/share/paraview-5.6/web/glance/www/
-pvw/lite /opt/paraview/share/paraview-5.6/web/lite/www/
-pvw/divvy /opt/paraview/share/paraview-5.6/web/divvy/www/
-pvw/visualizer /opt/paraview/share/paraview-5.6/web/visualizer/www/
-pvw/flow /opt/paraview/share/paraview-5.6/web/flow/www/
+pvw/glance /opt/paraview/share/paraview-5.8/web/glance/www/
+pvw/lite /opt/paraview/share/paraview-5.8/web/lite/www/
+pvw/divvy /opt/paraview/share/paraview-5.8/web/divvy/www/
+pvw/visualizer /opt/paraview/share/paraview-5.8/web/visualizer/www/
+pvw/flow /opt/paraview/share/paraview-5.8/web/flow/www/
 pvw /pvw/apps/pvw/www/
 horizon /pvw/apps/horizon/www/
 fury /pvw/apps/fury/www/
