@@ -4,14 +4,14 @@
       "updir": "/Home"
     },
     "configuration": {
-      "log_dir": "/pvw/launcher/log",
       "host": "localhost",
+      "port": 9000,
       "endpoint": "paraview",
+      "log_dir": "/pvw/launcher/log",
       "sessionURL": "SESSION_URL_ROOT/proxy?sessionId=${id}&path=ws",
       "timeout": 25,
       "upload_dir": "/data/upload",
       "fields": [],
-      "port": 9000,
       "proxy_file": "/opt/launcher/proxy-mapping.txt",
       "sanitize": {
         "version": {
@@ -100,6 +100,16 @@
           "--viewport-max-width", "1920",
           "--viewport-max-height", "1080",
           "--timeout", "30"
+        ],
+        "ready_line" : "Starting factory"
+      },
+      "fury": {
+        "cmd": [
+          "${python_exec}",
+          EXTRA_PVPYTHON_ARGS
+          "/pvw/apps/fury/server/fury_server.py",
+          "--port", "${port}",
+          "--authKey", "${secret}"
         ],
         "ready_line" : "Starting factory"
       }
