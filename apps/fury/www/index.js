@@ -17,8 +17,9 @@ divRenderer.style.width = '100vw';
 divRenderer.style.height = '100vh';
 divRenderer.style.overflow = 'hidden';
 
+const config = { sessionManagerURL: 'http://localhost:9000/paraview/',
+                 application: 'fury',};
 // const config = { sessionURL: 'ws://localhost:1234/ws' };
-const config = { sessionURL: 'ws://156.56.158.89:1234/ws' };
 const smartConnect = SmartConnect.newInstance({ config });
 smartConnect.onConnectionReady((connection) => {
   const pvwClient = ParaViewWebClient.createClient(connection, [

@@ -121,7 +121,8 @@ class _WebCone(vtk_wslink.ServerProtocol):
         return ('Slider Demo', [panel, cube])
 
     def build_brain_demo(self, showm):
-        path = "/Users/koudoro/Software/temp/"
+        # path = "/Users/koudoro/Software/temp/"
+        path = "/pvw/data/"
         # lh_path = os.path.join(path, "100307_white_lh.vtk")
         # rh_path = os.path.join(path, "100307_white_rh.vtk")
         # lh_pd = load_polydata(lh_path)
@@ -186,7 +187,7 @@ class _WebCone(vtk_wslink.ServerProtocol):
             event_pos = local_showm.iren.GetEventPosition()
 
             local_picker.Pick(event_pos[0], event_pos[1],
-                                0, local_showm.scene)
+                              0, local_showm.scene)
 
             # cell_index = picker.GetCellId()
             point_index = local_picker.GetPointId()
@@ -399,10 +400,12 @@ class _WebCone(vtk_wslink.ServerProtocol):
                     # showm.render()
                     # view = self.getApplication().GetObjectIdMap().GetActiveObject("VIEW")
 
-            arr = np.random.rand(100)
-            t1 = threading.Thread(target=calc_suare, args=(arr, showm))
-            t1.start()
-
+            # arr = np.random.rand(100)
+            # t1 = threading.Thread(target=calc_suare, args=(arr, showm))
+            # t1.start()
+            print("Auth-key {}".format(_WebCone.authKey))
+            print('Initialization  --- OK')
+            print('Starting FURY SERVER')
             # VTK Web application specific
             _WebCone.view = renderWindow
             self.getApplication().GetObjectIdMap().SetActiveObject("VIEW",
