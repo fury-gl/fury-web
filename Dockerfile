@@ -36,6 +36,9 @@
 # docker ps (to get the name of the running container)
 # docker exec -it container_name bash
 #
+# Check docker apache
+# docker exec -it container_name cat /etc/apache2/sites-available/001-pvw.conf
+#
 # Some useful links:
 # - https://hub.docker.com/r/kitware/paraview
 # - https://github.com/Kitware/paraviewweb/tree/master/tools/docker/paraviewweb
