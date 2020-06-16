@@ -44,7 +44,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "Starting factory"
+        "ready_line" : "Visualizer: Starting factory"
       },
       "visualizer-with-file": {
         "cmd": [
@@ -59,7 +59,7 @@
           "--timeout", "30",
           "--load-file", "${file}"
         ],
-        "ready_line" : "Starting factory"
+        "ready_line" : "Visualizer 2: Starting factory"
       },
       "paraview-lite": {
         "cmd": [
@@ -73,7 +73,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "Starting factory"
+        "ready_line" : "PV-Lite: Starting factory"
       },
       "divvy": {
         "cmd": [
@@ -87,7 +87,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "Starting factory"
+        "ready_line" : "Divvy: Starting factory"
       },
       "flow": {
         "cmd": [
@@ -101,7 +101,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "Starting factory"
+        "ready_line" : "Flow: Starting factory"
       },
       "fury": {
         "cmd": [
@@ -111,7 +111,17 @@
           "--port", "${port}",
           "--authKey", "${secret}"
         ],
-        "ready_line" : "Starting factory"
+        "ready_line" : "Fury: Starting factory"
+      },
+      "demo": {
+        "cmd": [
+          "${python_exec}",
+          EXTRA_PVPYTHON_ARGS
+          "/pvw/apps/demo/server/vtk_server.py",
+          "--port", "${port}",
+          "--authKey", "${secret}"
+        ],
+        "ready_line" : "Demo: Starting factory"
       }
     }
   }
