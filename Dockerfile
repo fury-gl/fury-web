@@ -38,6 +38,8 @@
 #
 # Check docker apache
 # docker exec -it container_name cat /etc/apache2/sites-available/001-pvw.conf
+# docker exec -it container_name cat /opt/launcher/config-template.json
+# docker exec -it container_name cat /opt/launcher/config.json
 #
 # Some useful links:
 # - https://hub.docker.com/r/kitware/paraview
