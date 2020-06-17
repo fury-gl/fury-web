@@ -44,7 +44,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "Visualizer: Starting factory"
+        "ready_line" : " Starting factory"
       },
       "visualizer-with-file": {
         "cmd": [
@@ -59,7 +59,7 @@
           "--timeout", "30",
           "--load-file", "${file}"
         ],
-        "ready_line" : "Visualizer 2: Starting factory"
+        "ready_line" : " Starting factory"
       },
       "paraview-lite": {
         "cmd": [
@@ -73,7 +73,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "PV-Lite: Starting factory"
+        "ready_line" : " Starting factory"
       },
       "divvy": {
         "cmd": [
@@ -87,7 +87,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "Divvy: Starting factory"
+        "ready_line" : " Starting factory"
       },
       "flow": {
         "cmd": [
@@ -101,7 +101,7 @@
           "--viewport-max-height", "1080",
           "--timeout", "30"
         ],
-        "ready_line" : "Flow: Starting factory"
+        "ready_line" : " Starting factory"
       },
       "fury": {
         "cmd": [
@@ -111,7 +111,7 @@
           "--port", "${port}",
           "--authKey", "${secret}"
         ],
-        "ready_line" : "Fury: Starting factory"
+        "ready_line" : " Starting factory"
       },
       "demo": {
         "cmd": [
@@ -121,7 +121,7 @@
           "--port", "${port}",
           "--authKey", "${secret}"
         ],
-        "ready_line" : "Demo: Starting factory"
+        "ready_line" : " Starting factory"
       }
     }
   }

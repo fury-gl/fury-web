@@ -73,6 +73,9 @@ COPY launcher/config.json /opt/launcher/config-template.json
 # RUN ["/opt/paraviewweb/scripts/addEndpoints.sh", \
 #   "horizon", "/pvw/apps/horizon/www" \
 # ]
+# RUN ["/opt/paraviewweb/scripts/addEndpoints.sh", \
+#   "demo", "/pvw/apps/demo/www" \
+# ]
 #
 RUN mv /opt/paraview/lib/python3.6/site-packages/scipy /opt/paraview/lib/python3.6/site-packages/buggy_scipy
 
