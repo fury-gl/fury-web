@@ -122,6 +122,16 @@
           "--authKey", "${secret}"
         ],
         "ready_line" : " Starting factory"
+      },
+      "spheres": {
+        "cmd": [
+          "${python_exec}",
+          EXTRA_PVPYTHON_ARGS
+          "/pvw/apps/spheres/server/fury_server.py",
+          "--port", "${port}",
+          "--authKey", "${secret}"
+        ],
+        "ready_line" : " Starting factory"
       }
     }
   }

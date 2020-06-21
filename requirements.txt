@@ -1,2 +1,2 @@
-dipy>=1.1.1
-fury>=0.4.0
+dipy>=1.1.1g
+git+git://github.com/skoudoro/fury@fury-web#egg=fury
