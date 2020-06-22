@@ -126,6 +126,11 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
                 "center", "center", vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS,
                 -1)
 
+            vtk_major_version = vtk.vtkVersion.GetVTKMajorVersion()
+            vtk_minor_version = vtk.vtkVersion.GetVTKMinorVersion()
+            if vtk_major_version > 8 or (vtk_major_version == 8 and vtk_minor_version >= 90):
+                mapper = actor.GetShaderProperty()
+
             mapper.AddShaderReplacement(
                 vtk.vtkShader.Vertex,
                 "//VTK::ValuePass::Dec",
@@ -149,13 +154,13 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
                 float scalingFactor = 1. / abs(centeredVertexMC.x);
                 centeredVertexMC *= scalingFactor;
 
-                vec3 cameraRight = vec3(MCVCMatrix[0][0], MCVCMatrix[1][0], 
+                vec3 cameraRight = vec3(MCVCMatrix[0][0], MCVCMatrix[1][0],
                                         MCVCMatrix[2][0]);
-                vec3 cameraUp = vec3(MCVCMatrix[0][1], MCVCMatrix[1][1], 
+                vec3 cameraUp = vec3(MCVCMatrix[0][1], MCVCMatrix[1][1],
                                      MCVCMatrix[2][1]);
                 vec2 squareVertices = vec2(.5, -.5);
-                vec3 vertexPosition = center + cameraRight * squareVertices.x * 
-                                      vertexMC.x + cameraUp * squareVertices.y * 
+                vec3 vertexPosition = center + cameraRight * squareVertices.x *
+                                      vertexMC.x + cameraUp * squareVertices.y *
                                       vertexMC.y;
                 gl_Position = MCDCMatrix * vec4(vertexPosition, 1.);
                 gl_Position /= gl_Position.w;
