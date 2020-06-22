@@ -129,7 +129,7 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
             vtk_major_version = vtk.vtkVersion.GetVTKMajorVersion()
             vtk_minor_version = vtk.vtkVersion.GetVTKMinorVersion()
             if vtk_major_version > 8 or (vtk_major_version == 8 and vtk_minor_version >= 90):
-                mapper = actor.GetShaderProperty()
+                mapper = canvas_actor.GetShaderProperty()
 
             mapper.AddShaderReplacement(
                 vtk.vtkShader.Vertex,
