@@ -55,6 +55,13 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
             colors = np.array([[255, 0, 0], [0, 255, 0], [0, 0, 255]])
             scale = [1, 2, 1]
 
+            n_sph = 10000
+            fact = 16
+            centers = fact * np.random.rand(n_sph, 3) - fact / 2
+            colors = np.random.rand(n_sph, 3) * 255
+            #scale = np.random.rand(n_sph)
+            scale = 3
+
             fake_sphere = """
             float len = length(point);
             float radius = 1;
@@ -73,6 +80,7 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
                                               scale=scale,
                                               fs_impl=fake_sphere)
             scene.add(billboard_actor)
+            scene.add(actor.axes())
             scene.reset_camera()
 
             showm = window.ShowManager(scene)
