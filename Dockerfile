@@ -77,7 +77,12 @@ COPY launcher/config.json /opt/launcher/config-template.json
 #   "demo", "/pvw/apps/demo/www" \
 # ]
 #
+# Workaround for buggy scipy
 RUN mv /opt/paraview/lib/python3.6/site-packages/scipy /opt/paraview/lib/python3.6/site-packages/buggy_scipy
+# install git for working with branch
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git
 
 # Start the container
 ENTRYPOINT ["/opt/paraviewweb/scripts/server.sh"]
