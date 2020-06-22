@@ -30,6 +30,11 @@ from wslink import server
 import argparse
 import numpy as np
 
+from fury.utils import get_actor_from_polydata, set_polydata_triangles, \
+        set_polydata_vertices, set_polydata_colors
+from vtk.util.numpy_support import numpy_to_vtk
+import vtk
+
 
 class _WebSpheres(vtk_wslink.ServerProtocol):
     # Application configuration
@@ -51,40 +56,150 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
             # FURY specific code
             scene = window.Scene()
             scene.background((1, 1, 1))
-            centers = np.array([[2, 0, 0], [0, 2, 0], [0, 0, 0]])
-            colors = np.array([[255, 0, 0], [0, 255, 0], [0, 0, 255]])
-            scale = [1, 2, 1]
 
-            n_sph = 10_000
-            fact = 16
-            centers = fact * np.random.rand(n_sph, 3) - fact / 2
-            colors = np.random.rand(n_sph, 3) * 255
-            # scale = np.random.rand(n_sph) * 3
-            scale = 3
+            n_points = 1000000
+            translate = 100
+            colors = 255 * np.random.rand(n_points, 3)
+            centers = translate * np.random.rand(n_points, 3) - translate / 2
+            radius = np.random.rand(n_points) / 10
 
-            fake_sphere = """
-            float len = length(point);
-            float radius = 1;
-            if(len > radius)
-                discard;
+            polydata = vtk.vtkPolyData()
 
-            vec3 normalizedPoint = normalize(vec3(point.xy, sqrt(1 - len)));
-            vec3 direction = normalize(vec3(1, 1, 1));
-            float df = max(0, dot(direction, normalizedPoint));
-            float sf = pow(df, 24);
-            fragOutput0 = vec4(max(df * color, sf * vec3(1)), 1);
-            """
+            verts = np.array([[0.0, 0.0, 0.0],
+                              [0.0, 1.0, 0.0],
+                              [1.0, 1.0, 0.0],
+                              [1.0, 0.0, 0.0]])
+            verts -= np.array([0.5, 0.5, 0])
 
-            billboard_actor = actor.billboard(centers,
-                                              colors=colors.astype(np.uint8),
-                                              scale=scale,
-                                              fs_impl=fake_sphere)
-            scene.add(billboard_actor)
-            scene.add(actor.axes())
-            scene.reset_camera()
+            big_verts = np.tile(verts, (centers.shape[0], 1))
+            big_cents = np.repeat(centers, verts.shape[0], axis=0)
+
+            big_verts += big_cents
+
+            # print(big_verts)
+
+            big_scales = np.repeat(radius, verts.shape[0], axis=0)
+
+            # print(big_scales)
+
+            big_verts *= big_scales[:, np.newaxis]
+
+            # print(big_verts)
+
+            tris = np.array([[0, 1, 2], [2, 3, 0]], dtype='i8')
+
+            big_tris = np.tile(tris, (centers.shape[0], 1))
+            shifts = np.repeat(np.arange(0, centers.shape[0] * verts.shape[0],
+                                         verts.shape[0]), tris.shape[0])
+
+            big_tris += shifts[:, np.newaxis]
+
+            # print(big_tris)
+
+            big_cols = np.repeat(colors, verts.shape[0], axis=0)
+
+            # print(big_cols)
+
+            big_centers = np.repeat(centers, verts.shape[0], axis=0)
+
+            # print(big_centers)
+
+            big_centers *= big_scales[:, np.newaxis]
+
+            # print(big_centers)
+
+            set_polydata_vertices(polydata, big_verts)
+            set_polydata_triangles(polydata, big_tris)
+            set_polydata_colors(polydata, big_cols)
+
+            vtk_centers = numpy_to_vtk(big_centers, deep=True)
+            vtk_centers.SetNumberOfComponents(3)
+            vtk_centers.SetName("center")
+            polydata.GetPointData().AddArray(vtk_centers)
+
+            canvas_actor = get_actor_from_polydata(polydata)
+            canvas_actor.GetProperty().BackfaceCullingOff()
+
+            mapper = canvas_actor.GetMapper()
+
+            mapper.MapDataArrayToVertexAttribute(
+                "center", "center", vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS,
+                -1)
+
+            mapper.AddShaderReplacement(
+                vtk.vtkShader.Vertex,
+                "//VTK::ValuePass::Dec",
+                True,
+                """
+                //VTK::ValuePass::Dec
+                in vec3 center;
+
+                out vec3 centeredVertexMC;
+                """,
+                False
+            )
+
+            mapper.AddShaderReplacement(
+                vtk.vtkShader.Vertex,
+                "//VTK::ValuePass::Impl",
+                True,
+                """
+                //VTK::ValuePass::Impl
+                centeredVertexMC = vertexMC.xyz - center;
+                float scalingFactor = 1. / abs(centeredVertexMC.x);
+                centeredVertexMC *= scalingFactor;
+
+                vec3 cameraRight = vec3(MCVCMatrix[0][0], MCVCMatrix[1][0], 
+                                        MCVCMatrix[2][0]);
+                vec3 cameraUp = vec3(MCVCMatrix[0][1], MCVCMatrix[1][1], 
+                                     MCVCMatrix[2][1]);
+                vec2 squareVertices = vec2(.5, -.5);
+                vec3 vertexPosition = center + cameraRight * squareVertices.x * 
+                                      vertexMC.x + cameraUp * squareVertices.y * 
+                                      vertexMC.y;
+                gl_Position = MCDCMatrix * vec4(vertexPosition, 1.);
+                gl_Position /= gl_Position.w;
+                """,
+                False
+            )
+
+            mapper.AddShaderReplacement(
+                vtk.vtkShader.Fragment,
+                "//VTK::ValuePass::Dec",
+                True,
+                """
+                //VTK::ValuePass::Dec
+                in vec3 centeredVertexMC;
+                """,
+                False
+            )
+
+            mapper.AddShaderReplacement(
+                vtk.vtkShader.Fragment,
+                "//VTK::Light::Impl",
+                True,
+                """
+                // Renaming variables passed from the Vertex Shader
+                vec3 color = vertexColorVSOutput.rgb;
+                vec3 point = centeredVertexMC;
+                float len = length(point);
+                // VTK Fake Spheres
+                float radius = 1.;
+                if(len > radius)
+                  discard;
+                vec3 normalizedPoint = normalize(vec3(point.xy, sqrt(1. - len)));
+                vec3 direction = normalize(vec3(1., -1., 1.));
+                float df = max(0, dot(direction, normalizedPoint));
+                float sf = pow(df, 24);
+                fragOutput0 = vec4(max(df * color, sf * vec3(1)), 1);
+                """,
+                False
+            )
+
+            scene.add(canvas_actor)
+            #scene.add(actor.axes())
 
             showm = window.ShowManager(scene)
-            showm.render()
 
             renderWindow = showm.window
 
