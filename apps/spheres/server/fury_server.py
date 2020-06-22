@@ -55,11 +55,11 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
             colors = np.array([[255, 0, 0], [0, 255, 0], [0, 0, 255]])
             scale = [1, 2, 1]
 
-            n_sph = 10000
+            n_sph = 10_000
             fact = 16
             centers = fact * np.random.rand(n_sph, 3) - fact / 2
             colors = np.random.rand(n_sph, 3) * 255
-            #scale = np.random.rand(n_sph)
+            # scale = np.random.rand(n_sph) * 3
             scale = 3
 
             fake_sphere = """
@@ -67,7 +67,7 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
             float radius = 1;
             if(len > radius)
                 discard;
-            
+
             vec3 normalizedPoint = normalize(vec3(point.xy, sqrt(1 - len)));
             vec3 direction = normalize(vec3(1, 1, 1));
             float df = max(0, dot(direction, normalizedPoint));
