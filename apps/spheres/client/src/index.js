@@ -1,10 +1,10 @@
-import 'normalize.css';
+import vtkWSLinkClient from 'vtk.js/Sources/IO/Core/WSLinkClient';
+import vtkRemoteView from 'vtk.js/Sources/Rendering/Misc/RemoteView';
+import { connectImageStream } from 'vtk.js/Sources/Rendering/Misc/RemoteView';
 
 import SmartConnect from 'wslink/src/SmartConnect';
 
-import RemoteRenderer from 'paraviewweb/src/NativeUI/Canvas/RemoteRenderer';
-import SizeHelper from 'paraviewweb/src/Common/Misc/SizeHelper';
-import ParaViewWebClient from 'paraviewweb/src/IO/WebSocket/ParaViewWebClient';
+vtkWSLinkClient.setSmartConnectClass(SmartConnect);
 
 document.body.style.padding = '0';
 document.body.style.margin = '0';
@@ -17,23 +17,53 @@ divRenderer.style.width = '100vw';
 divRenderer.style.height = '100vh';
 divRenderer.style.overflow = 'hidden';
 
-const config = { sessionURL: 'ws://localhost:1234/ws' };
-const smartConnect = SmartConnect.newInstance({ config });
-smartConnect.onConnectionReady((connection) => {
-  const pvwClient = ParaViewWebClient.createClient(connection, [
-    'MouseHandler',
-    'ViewPort',
-    'ViewPortImageDelivery',
-  ]);
-  const renderer = new RemoteRenderer(pvwClient);
-  renderer.setContainer(divRenderer);
-  renderer.onImageReady(() => {
-    console.log('We are good');
-  });
-  window.renderer = renderer;
-  SizeHelper.onSizeChange(() => {
-    renderer.resize();
-  });
-  SizeHelper.startListening();
+const view = vtkRemoteView.newInstance({
+  rpcWheelEvent: 'viewport.mouse.zoom.wheel',
 });
-smartConnect.connect();
+view.setContainer(divRenderer);
+view.setInteractiveRatio(.7); // Scaled image compared to the clients view resolution
+view.setInteractiveQuality(50); // jpeg quality
+
+window.addEventListener('resize', view.resize);
+
+const clientToConnect = vtkWSLinkClient.newInstance();
+
+// Error
+clientToConnect.onConnectionError((httpReq) => {
+  const message =
+    (httpReq && httpReq.response && httpReq.response.error) ||
+    `Connection error`;
+  console.error(message);
+  console.log(httpReq);
+});
+
+// Close
+clientToConnect.onConnectionClose((httpReq) => {
+  const message =
+    (httpReq && httpReq.response && httpReq.response.error) ||
+    `Connection close`;
+  console.error(message);
+  console.log(httpReq);
+});
+
+// hint: if you use the launcher.py and ws-proxy just leave out sessionURL
+// (it will be provided by the launcher)
+const config = {
+  //application: 'cone',
+  sessionURL: 'ws://localhost:1234/ws'
+};
+
+// Connect
+clientToConnect
+  .connect(config)
+  .then((validClient) => {
+    connectImageStream(validClient.getConnection().getSession());
+
+    const session = validClient.getConnection().getSession();
+    view.setSession(session);
+    view.setViewId(-1);
+    view.render();
+  })
+  .catch((error) => {
+    console.error(error);
+  });
