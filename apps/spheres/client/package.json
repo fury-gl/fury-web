@@ -8,7 +8,7 @@
     "build:release": "webpack --progress --colors --mode production",
     "commit": "git cz",
     "semantic-release": "semantic-release",
-    "start": "webpack-dev-server --content-base ./../www",
+    "start": "webpack-dev-server --content-base ../www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

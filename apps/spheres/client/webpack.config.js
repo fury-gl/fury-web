@@ -3,7 +3,7 @@ var vtkRules = require('vtk.js/Utilities/config/dependency.js').webpack.core.rul
 
 var entry = path.join(__dirname, './src/index.js');
 const sourcePath = path.join(__dirname, './src');
-const outputPath = path.join(__dirname, './../www');
+const outputPath = path.join(__dirname, '../www');
 
 module.exports = {
     entry,

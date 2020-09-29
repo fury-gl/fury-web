@@ -23,6 +23,7 @@ be overriden if need be:
 
 
 from fury import actor, window
+from fury_protocol import FuryProtocol
 from vtk.web import protocols
 from vtk.web import wslink as vtk_wslink
 from wslink import server
@@ -55,6 +56,9 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
         # For local rendering using vtk.js
         #self.registerVtkWebProtocol(protocols.vtkWebViewPortGeometryDelivery())
         #self.registerVtkWebProtocol(protocols.vtkWebLocalRendering())
+
+        # Custom API
+        self.registerVtkWebProtocol(FuryProtocol())
 
         # Tell the C++ web app to use no encoding.
         # ParaViewWebPublishImageDelivery must be set to decode=False to match.

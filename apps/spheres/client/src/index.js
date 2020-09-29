@@ -21,7 +21,14 @@ const view = vtkRemoteView.newInstance({
   rpcWheelEvent: 'viewport.mouse.zoom.wheel',
 });
 view.setContainer(divRenderer);
-view.setInteractiveRatio(.7); // Scaled image compared to the clients view resolution
+// Default of .5 causes 2x size labels on high-DPI screens.
+// 1 good for demo, not for production.
+if (location.hostname.split('.')[0] === 'localhost') {
+    view.setInteractiveRatio(1);
+} else {
+    // Scaled image compared to the clients view resolution
+    view.setInteractiveRatio(.75);
+}
 view.setInteractiveQuality(50); // jpeg quality
 
 window.addEventListener('resize', view.resize);
