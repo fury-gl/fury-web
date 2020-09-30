@@ -123,6 +123,16 @@
         ],
         "ready_line" : " Starting factory"
       },
+      "sdf": {
+        "cmd": [
+          "${python_exec}",
+          EXTRA_PVPYTHON_ARGS
+          "/pvw/apps/sdf/server/vtk_server.py",
+          "--port", "${port}",
+          "--authKey", "${secret}"
+        ],
+        "ready_line" : " Starting factory"
+      },
       "spheres": {
         "cmd": [
           "${python_exec}",
