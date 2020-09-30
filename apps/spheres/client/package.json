@@ -1,27 +1,29 @@
 {
-  "name": "vtk-server-test",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "fury_web_client",
+  "version": "0.0.1",
+  "description": "vtk.js application",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack --progress --colors --mode development",
+    "build:release": "webpack --progress --colors --mode production",
+    "commit": "git cz",
+    "semantic-release": "semantic-release",
+    "start": "webpack-dev-server --content-base ../www",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Web",
+    "visualization",
+    "using",
+    "VTK"
+  ],
+  "author": "Javier Guaje",
+  "license": "ISC",
   "dependencies": {
-    "hammerjs": "^2.0.8",
-    "paraviewweb": "^3.2.2",
-    "wslink": "^0.1.7"
+    "vtk.js": "^14.15.8",
+    "wslink": "^0.1.15"
   },
   "devDependencies": {
-    "kw-web-suite": "^6.2.0",
-    "monologue.js": "^0.3.5",
-    "normalize.css": "^8.0.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode development",
-    "build:debug": "webpack --display-modules",
-    "build:release": "webpack --mode production",
-    "start": "webpack-dev-server",
-    "commit": "git cz",
-    "semantic-release": "semantic-release"
-  },
-  "author": "",
-  "license": "ISC"
+    "kw-web-suite": "^10.0.0"
+  }
 }

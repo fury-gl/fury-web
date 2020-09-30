@@ -21,7 +21,9 @@ be overriden if need be:
         that the server expects "wslink-secret" as the secret key.
 """
 
+
 from fury import actor, window
+from fury_protocol import FuryProtocol
 from vtk.web import protocols
 from vtk.web import wslink as vtk_wslink
 from wslink import server
@@ -29,24 +31,39 @@ from wslink import server
 
 import argparse
 import numpy as np
-
-from fury.utils import get_actor_from_polydata, set_polydata_triangles, \
-        set_polydata_vertices, set_polydata_colors
-from vtk.util.numpy_support import numpy_to_vtk
 import vtk
 
 
 class _WebSpheres(vtk_wslink.ServerProtocol):
+
     # Application configuration
+    authKey = 'wslink-secret'
     view = None
-    authKey = "wslink-secret"
 
     def initialize(self):
         # Bring used components
         self.registerVtkWebProtocol(protocols.vtkWebMouseHandler())
         self.registerVtkWebProtocol(protocols.vtkWebViewPort())
-        self.registerVtkWebProtocol(protocols.vtkWebViewPortImageDelivery())
-        self.registerVtkWebProtocol(protocols.vtkWebViewPortGeometryDelivery())
+        # Image delivery
+        # 1. Original method where the client ask for each image individually
+        #self.registerVtkWebProtocol(protocols.vtkWebViewPortImageDelivery())
+        # 2. Improvement on the initial protocol to allow images to be pushed
+        # from the server without any client request (i.e.: animation, LOD, …)
+        self.registerVtkWebProtocol(protocols.vtkWebPublishImageDelivery(
+            decode=False))
+        # Protocol for sending geometry for the vtk.js synchronized render
+        # window
+        # For local rendering using vtk.js
+        #self.registerVtkWebProtocol(protocols.vtkWebViewPortGeometryDelivery())
+        #self.registerVtkWebProtocol(protocols.vtkWebLocalRendering())
+
+        # Custom API
+        self.registerVtkWebProtocol(FuryProtocol())
+
+        # Tell the C++ web app to use no encoding.
+        # ParaViewWebPublishImageDelivery must be set to decode=False to match.
+        # RAW instead of base64
+        self.getApplication().SetImageEncoding(0)
 
         # Update authentication key to use
         self.updateSecret(_WebSpheres.authKey)
@@ -57,161 +74,46 @@ class _WebSpheres(vtk_wslink.ServerProtocol):
             scene = window.Scene()
             scene.background((1, 1, 1))
 
-            n_points = 1000000
+            n_points = 10000
             translate = 100
-            colors = 255 * np.random.rand(n_points, 3)
             centers = translate * np.random.rand(n_points, 3) - translate / 2
-            radius = np.random.rand(n_points) / 10
-
-            polydata = vtk.vtkPolyData()
-
-            verts = np.array([[0.0, 0.0, 0.0],
-                              [0.0, 1.0, 0.0],
-                              [1.0, 1.0, 0.0],
-                              [1.0, 0.0, 0.0]])
-            verts -= np.array([0.5, 0.5, 0])
-
-            big_verts = np.tile(verts, (centers.shape[0], 1))
-            big_cents = np.repeat(centers, verts.shape[0], axis=0)
-
-            big_verts += big_cents
-
-            # print(big_verts)
-
-            big_scales = np.repeat(radius, verts.shape[0], axis=0)
-
-            # print(big_scales)
-
-            big_verts *= big_scales[:, np.newaxis]
-
-            # print(big_verts)
-
-            tris = np.array([[0, 1, 2], [2, 3, 0]], dtype='i8')
-
-            big_tris = np.tile(tris, (centers.shape[0], 1))
-            shifts = np.repeat(np.arange(0, centers.shape[0] * verts.shape[0],
-                                         verts.shape[0]), tris.shape[0])
-
-            big_tris += shifts[:, np.newaxis]
-
-            # print(big_tris)
-
-            big_cols = np.repeat(colors, verts.shape[0], axis=0)
-
-            # print(big_cols)
-
-            big_centers = np.repeat(centers, verts.shape[0], axis=0)
-
-            # print(big_centers)
-
-            big_centers *= big_scales[:, np.newaxis]
-
-            # print(big_centers)
-
-            set_polydata_vertices(polydata, big_verts)
-            set_polydata_triangles(polydata, big_tris)
-            set_polydata_colors(polydata, big_cols)
-
-            vtk_centers = numpy_to_vtk(big_centers, deep=True)
-            vtk_centers.SetNumberOfComponents(3)
-            vtk_centers.SetName("center")
-            polydata.GetPointData().AddArray(vtk_centers)
-
-            canvas_actor = get_actor_from_polydata(polydata)
-            canvas_actor.GetProperty().BackfaceCullingOff()
-
-            mapper = canvas_actor.GetMapper()
-
-            mapper.MapDataArrayToVertexAttribute(
-                "center", "center", vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS,
-                -1)
-
-            vtk_major_version = vtk.vtkVersion.GetVTKMajorVersion()
-            vtk_minor_version = vtk.vtkVersion.GetVTKMinorVersion()
-            if vtk_major_version > 8 or (vtk_major_version == 8 and vtk_minor_version >= 90):
-                mapper = canvas_actor.GetShaderProperty()
-
-            mapper.AddShaderReplacement(
-                vtk.vtkShader.Vertex,
-                "//VTK::ValuePass::Dec",
-                True,
+            colors = 255 * np.random.rand(n_points, 3)
+            radius = np.random.rand(n_points)
+            fake_sphere = \
                 """
-                //VTK::ValuePass::Dec
-                in vec3 center;
-
-                out vec3 centeredVertexMC;
-                """,
-                False
-            )
-
-            mapper.AddShaderReplacement(
-                vtk.vtkShader.Vertex,
-                "//VTK::ValuePass::Impl",
-                True,
-                """
-                //VTK::ValuePass::Impl
-                centeredVertexMC = vertexMC.xyz - center;
-                float scalingFactor = 1. / abs(centeredVertexMC.x);
-                centeredVertexMC *= scalingFactor;
-
-                vec3 cameraRight = vec3(MCVCMatrix[0][0], MCVCMatrix[1][0],
-                                        MCVCMatrix[2][0]);
-                vec3 cameraUp = vec3(MCVCMatrix[0][1], MCVCMatrix[1][1],
-                                     MCVCMatrix[2][1]);
-                vec2 squareVertices = vec2(.5, -.5);
-                vec3 vertexPosition = center + cameraRight * squareVertices.x *
-                                      vertexMC.x + cameraUp * squareVertices.y *
-                                      vertexMC.y;
-                gl_Position = MCDCMatrix * vec4(vertexPosition, 1.);
-                gl_Position /= gl_Position.w;
-                """,
-                False
-            )
-
-            mapper.AddShaderReplacement(
-                vtk.vtkShader.Fragment,
-                "//VTK::ValuePass::Dec",
-                True,
-                """
-                //VTK::ValuePass::Dec
-                in vec3 centeredVertexMC;
-                """,
-                False
-            )
-
-            mapper.AddShaderReplacement(
-                vtk.vtkShader.Fragment,
-                "//VTK::Light::Impl",
-                True,
-                """
-                // Renaming variables passed from the Vertex Shader
-                vec3 color = vertexColorVSOutput.rgb;
-                vec3 point = centeredVertexMC;
                 float len = length(point);
-                // VTK Fake Spheres
                 float radius = 1.;
                 if(len > radius)
-                  discard;
-                vec3 normalizedPoint = normalize(vec3(point.xy, sqrt(1. - len)));
-                vec3 direction = normalize(vec3(1., -1., 1.));
-                float df = max(0, dot(direction, normalizedPoint));
-                float sf = pow(df, 24);
-                fragOutput0 = vec4(max(df * color, sf * vec3(1)), 1);
-                """,
-                False
-            )
+                    {discard;}
 
-            scene.add(canvas_actor)
-            #scene.add(actor.axes())
+                vec3 normalizedPoint = normalize(vec3(point.xy, sqrt(1. - len)));
+                vec3 direction = normalize(vec3(1., 1., 1.));
+                float df_1 = max(0, dot(direction, normalizedPoint));
+                float sf_1 = pow(df_1, 24);
+                fragOutput0 = vec4(max(df_1 * color, sf_1 * vec3(1)), 1);
+                """
+            spheres_actor = actor.billboard(centers, colors=colors,
+                                            scales=radius, fs_impl=fake_sphere)
+
+            scene.add(spheres_actor)
+            scene.add(actor.axes())
 
             showm = window.ShowManager(scene)
+            # For debugging purposes
+            #showm.render()
 
-            renderWindow = showm.window
+            ren_win = showm.window
+
+            ren_win_interactor = vtk.vtkRenderWindowInteractor()
+            ren_win_interactor.SetRenderWindow(ren_win)
+            ren_win_interactor.GetInteractorStyle().\
+                SetCurrentStyleToTrackballCamera()
+            ren_win_interactor.EnableRenderOff()
 
             # VTK Web application specific
-            _WebSpheres.view = renderWindow
-            self.getApplication().GetObjectIdMap().\
-                SetActiveObject('VIEW', renderWindow)
+            _WebSpheres.view = ren_win
+            self.getApplication().GetObjectIdMap().SetActiveObject(
+                'VIEW', ren_win)
 
 
 # =============================================================================
