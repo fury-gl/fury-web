@@ -5,6 +5,7 @@ pvw/visualizer /opt/paraview/share/paraview-5.7/web/visualizer/www/
 pvw/flow /opt/paraview/share/paraview-5.7/web/flow/www/
 pvw /pvw/apps/pvw/www/
 demo /pvw/apps/demo/www/
+sdf /pvw/apps/sdf/www/
 horizon /pvw/apps/horizon/www/
 fury /pvw/apps/fury/www/
 spheres /pvw/apps/spheres/www

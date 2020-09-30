@@ -56,8 +56,8 @@ clientToConnect.onConnectionClose((httpReq) => {
 // hint: if you use the launcher.py and ws-proxy just leave out sessionURL
 // (it will be provided by the launcher)
 const config = {
-  //application: 'cone',
-  sessionURL: 'ws://localhost:1234/ws'
+  application: 'spheres',
+  //sessionURL: 'ws://localhost:1234/ws'
 };
 
 // Connect

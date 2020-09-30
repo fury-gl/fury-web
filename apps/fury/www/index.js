@@ -17,8 +17,7 @@ divRenderer.style.width = '100vw';
 divRenderer.style.height = '100vh';
 divRenderer.style.overflow = 'hidden';
 
-const config = { sessionManagerURL: 'http://localhost:9000/paraview/',
-                 application: 'fury',};
+const config = { application: 'fury',}; // sessionManagerURL: 'http://localhost:9000/paraview/',
 // const config = { sessionURL: 'ws://localhost:1234/ws' };
 const smartConnect = SmartConnect.newInstance({ config });
 smartConnect.onConnectionReady((connection) => {
