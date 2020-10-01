@@ -18,7 +18,7 @@
     "using",
     "VTK"
   ],
-  "author": "Javier Guaje",
+  "author": "Serge Koudoro",
   "license": "ISC",
   "dependencies": {
     "vtk.js": "^14.15.8",

@@ -1,3 +1,5 @@
+import "./styles.css";
+
 import vtkWSLinkClient from 'vtk.js/Sources/IO/Core/WSLinkClient';
 import vtkRemoteView from 'vtk.js/Sources/Rendering/Misc/RemoteView';
 import { connectImageStream } from 'vtk.js/Sources/Rendering/Misc/RemoteView';
@@ -16,6 +18,16 @@ divRenderer.style.position = 'relative';
 divRenderer.style.width = '100vw';
 divRenderer.style.height = '100vh';
 divRenderer.style.overflow = 'hidden';
+
+// loading
+const divLoading = document.createElement('div');
+const txtLoading = document.createElement('h2');
+txtLoading.innerHTML = "Loading...";
+divLoading.classList.add("loader");
+txtLoading.classList.add("loadertxt");
+divRenderer.appendChild(divLoading);
+divRenderer.appendChild(txtLoading);
+divRenderer.classList.add("parent");
 
 const view = vtkRemoteView.newInstance({
   rpcWheelEvent: 'viewport.mouse.zoom.wheel',
@@ -42,6 +54,7 @@ clientToConnect.onConnectionError((httpReq) => {
     `Connection error`;
   console.error(message);
   console.log(httpReq);
+  txtLoading.innerHTML = message;
 });
 
 // Close
@@ -51,6 +64,7 @@ clientToConnect.onConnectionClose((httpReq) => {
     `Connection close`;
   console.error(message);
   console.log(httpReq);
+  txtLoading.innerHTML = message;
 });
 
 // hint: if you use the launcher.py and ws-proxy just leave out sessionURL
@@ -70,7 +84,15 @@ clientToConnect
     view.setSession(session);
     view.setViewId(-1);
     view.render();
+
+    divRenderer.removeChild(divLoading);
+    divRenderer.removeChild(txtLoading);
+    divRenderer.classList.remove("parent");
   })
   .catch((error) => {
     console.error(error);
+    txtLoading.innerHTML = message;
+    divRenderer.appendChild(divLoading);
+    divRenderer.appendChild(txtLoading);
+    divRenderer.classList.add("parent");
   });
