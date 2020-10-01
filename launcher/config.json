@@ -129,7 +129,9 @@
           EXTRA_PVPYTHON_ARGS
           "/pvw/apps/sdf/server/vtk_server.py",
           "--port", "${port}",
-          "--authKey", "${secret}"
+          "--authKey", "${secret}",
+          "--load-centers", "${centers}",
+          "--load-sims", "${sims}"
         ],
         "ready_line" : " Starting factory"
       },

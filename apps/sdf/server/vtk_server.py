@@ -19,6 +19,7 @@ import os
 import random
 import sys
 import argparse
+import json
 
 # Try handle virtual env if provided
 if '--virtual-env' in sys.argv:
@@ -416,13 +417,27 @@ class _Server(vtk_wslink.ServerProtocol):
     def add_arguments(parser):
         parser.add_argument("--virtual-env", default=None,
                             help="Path to virtual environment to use")
+        parser.add_argument("--data", default="/pvw/data", help="path to data directory to list, or else multiple directories given as 'name1=path1|name2=path2|...'", dest="path")
+        parser.add_argument("--load-centers", default=None, help="Centers File to load if any based on data-dir base path", dest="centers")
+        parser.add_argument("--load-sims", default=None, help="Simulations File to load if any based on data-dir base path", dest="sims")
 
     @staticmethod
     def configure(args):
         # Standard args
         _Server.authKey = args.authKey
+        _Server.dataDir = args.path
+        if args.centers:
+            _Server.centersToLoad = os.path.join(args.path, args.centers)
+            print("KAKAKAKA {}".format(_Server.centersToLoad))
+        if args.sims:
+            _Server.simsToLoad = os.path.join(args.path, args.sims)
+            print("KAKAKAKA {}".format(_Server.simsToLoad))
 
     def initialize(self):
+        if hasattr(_Server, 'centersToLoad'):
+            print("TOTOTOTO {}".format(_Server.centersToLoad))
+        if hasattr(_Server, 'simsToLoad'):
+            print("TOTOTOTO {}".format(_Server.simsToLoad))
         # Bring used components
         self.registerVtkWebProtocol(vtk_protocols.vtkWebMouseHandler())
         self.registerVtkWebProtocol(vtk_protocols.vtkWebViewPort())
@@ -442,12 +457,20 @@ class _Server(vtk_wslink.ServerProtocol):
             scene = window.Scene()
             scene.background((1, 1, 1))
 
-            n_points = 10000
-            translate = 100
-            centers = translate * np.random.rand(n_points, 3) - translate / 2
-            colors = 255 * np.random.rand(n_points, 3)
+            if os.path.isfile(_Server.centersToLoad):
+                with open(_Server.centersToLoad) as f:
+                    f_dict = json.loads(f.read())
+                centers = np.array(f_dict["centers"])
+                n_points = len(centers)
+                colors = np.array(f_dict["colors"])
+                directions = np.random.rand(n_points, 3)
+            else:
+                n_points = 10000
+                translate = 100
+                centers = translate * np.random.rand(n_points, 3) - translate / 2
+                colors = 255 * np.random.rand(n_points, 3)
 
-            directions = np.random.rand(n_points, 3)
+                directions = np.random.rand(n_points, 3)
             # scales = np.random.rand(n_points, 3)
 
             prim_type = ['sphere', 'ellipsoid', 'torus']

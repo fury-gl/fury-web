@@ -22,7 +22,11 @@ module.exports = {
   },
   module: {
     rules: [
-     { test: entry, loader: "expose-loader?sdfFuryWebClient" },
+     { test: entry,
+       loader: "expose-loader?sdfFuryWebClient" },
+     { test: /\.css$/,
+       use: [ 'style-loader', 'css-loader']
+    }
     ].concat(vtkRules),
   },
   resolve: {modules: [path.resolve(__dirname, 'node_modules'), sourcePath]},
