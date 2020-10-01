@@ -428,16 +428,10 @@ class _Server(vtk_wslink.ServerProtocol):
         _Server.dataDir = args.path
         if args.centers:
             _Server.centersToLoad = os.path.join(args.path, args.centers)
-            print("KAKAKAKA {}".format(_Server.centersToLoad))
         if args.sims:
             _Server.simsToLoad = os.path.join(args.path, args.sims)
-            print("KAKAKAKA {}".format(_Server.simsToLoad))
 
     def initialize(self):
-        if hasattr(_Server, 'centersToLoad'):
-            print("TOTOTOTO {}".format(_Server.centersToLoad))
-        if hasattr(_Server, 'simsToLoad'):
-            print("TOTOTOTO {}".format(_Server.simsToLoad))
         # Bring used components
         self.registerVtkWebProtocol(vtk_protocols.vtkWebMouseHandler())
         self.registerVtkWebProtocol(vtk_protocols.vtkWebViewPort())
