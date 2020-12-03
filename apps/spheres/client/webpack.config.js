@@ -3,7 +3,11 @@ var vtkRules = require('vtk.js/Utilities/config/dependency.js').webpack.core.rul
 
 // Generate the html file
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const plugins = [new HtmlWebpackPlugin({inject: 'body'})];
+const plugins = [
+    new HtmlWebpackPlugin({
+      inject: 'body',
+    }),
+  ];
 
 var entry = path.join(__dirname, './src/index.js');
 const sourcePath = path.join(__dirname, './src');
