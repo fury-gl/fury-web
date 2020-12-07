@@ -45,7 +45,9 @@
 # - https://hub.docker.com/r/kitware/paraview
 # - https://github.com/Kitware/paraviewweb/tree/master/tools/docker/paraviewweb
 #
-# docker run -v /Users/koudoro/Software/fury-web:/pvw -p 127.0.0.1:8081:80 -e "SERVER_NAME=localhost:8081" -e "PROTOCOL=ws" -ti furyweb-0.4.0
+# docker run -v /Users/koudoro/Software/fury-web:/pvw -p 127.0.0.1:8081:80 -ti furyweb-0.4.0
+#
+# my command: MacBook-Pro-de-koudoro:fury-web koudoro$ docker run -v /Users/koudoro/Software/fury-web:/pvw  -v data:/data -p 127.0.0.1:8081:80 -e "SERVER_NAME=localhost:8081" -e "PROTOCOL=ws"  -ti fury-osmesa-py3
 #
 # add the option "--gpu all" or --runtime=nvidia when you have nvidia-docker install on a Linux based system
 
