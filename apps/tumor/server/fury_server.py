@@ -148,7 +148,9 @@ class _WebTumor(vtk_wslink.ServerProtocol):
 
         # Create default pipeline (Only once for all the session)
         if not _WebTumor.view:
-            output_path = '/run/media/guaje/Data/Dev/fury_projs/fury-web/apps/tumor/server'
+            output_path = os.path.abspath(os.path.dirname(__file__))
+            print(output_path)
+            # output_path = '/run/media/guaje/Data/Dev/fury_projs/fury-web/apps/tumor/server'
             xml_file = os.path.join(output_path, 'output00000001.xml')
             mcds = pyMCDS_cells(xml_file, output_path=output_path)  # 23123 cells
             ncells = len(mcds.data['discrete_cells']['ID'])
@@ -307,14 +309,6 @@ class _WebTumor(vtk_wslink.ServerProtocol):
             #show_m.render()
 
             ren_win = show_m.window
-
-            """
-            ren_win_interactor = vtk.vtkRenderWindowInteractor()
-            ren_win_interactor.SetRenderWindow(ren_win)
-            ren_win_interactor.GetInteractorStyle().\
-                SetCurrentStyleToTrackballCamera()
-            ren_win_interactor.EnableRenderOff()
-            """
 
             # VTK Web application specific
             _WebTumor.view = ren_win

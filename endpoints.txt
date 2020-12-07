@@ -9,4 +9,5 @@ sdf /pvw/apps/sdf/www/
 horizon /pvw/apps/horizon/www/
 fury /pvw/apps/fury/www/
 spheres /pvw/apps/spheres/www
+tumor /pvw/apps/tumor/www
 DOCUMENT-ROOT-DIRECTORY /pvw/www/

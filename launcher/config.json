@@ -144,6 +144,16 @@
           "--authKey", "${secret}"
         ],
         "ready_line" : " Starting factory"
+      },
+      "tumor": {
+        "cmd": [
+          "${python_exec}",
+          EXTRA_PVPYTHON_ARGS
+          "/pvw/apps/tumor/server/fury_server.py",
+          "--port", "${port}",
+          "--authKey", "${secret}"
+        ],
+        "ready_line" : " Starting factory"
       }
     }
   }
