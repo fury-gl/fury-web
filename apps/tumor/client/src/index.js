@@ -71,7 +71,7 @@ clientToConnect.onConnectionClose((httpReq) => {
 // (it will be provided by the launcher)
 const config = {
   application: 'tumor',
-  //sessionURL: 'ws://localhost:1234/ws'
+  sessionURL: 'ws://localhost:1234/ws'
 };
 
 // Connect
