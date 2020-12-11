@@ -140,3 +140,6 @@ launcher/log
 # Node modules
 node_modules/
 package-lock.json
+
+# Built clients
+FuryWebClient.js
