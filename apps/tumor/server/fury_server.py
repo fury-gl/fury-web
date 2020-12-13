@@ -37,54 +37,36 @@ import os
 import vtk
 
 
-def argviz(thr_1, thr_2, centers, axis):
-    cond1 = thr_1 <= centers[:, axis]
-    cond2 = centers[:, axis] <= thr_2
-    return cond1 & cond2
-
-
 def change_clipping_plane_x(slider):
-    global ind_x, xyz
+    global low_ranges, high_ranges
     values = slider._values
     r1, r2 = values
-    ind_x = argviz(r1, r2, xyz, 0)
-    update_opacities()
+    low_ranges[0] = r1
+    high_ranges[0] = r2
 
 
 def change_clipping_plane_y(slider):
-    global ind_y, xyz
+    global low_ranges, high_ranges
     values = slider._values
     r1, r2 = values
-    ind_y = argviz(r1, r2, xyz, 1)
-    update_opacities()
+    low_ranges[1] = r1
+    high_ranges[1] = r2
 
 
 def change_clipping_plane_z(slider):
-    global ind_z, xyz
+    global low_ranges, high_ranges
     values = slider._values
     r1, r2 = values
-    ind_z = argviz(r1, r2, xyz, 2)
-    update_opacities()
+    low_ranges[2] = r1
+    high_ranges[2] = r2
 
 
-def update_opacities(verts_per_sph=4):
-    global ind_x, ind_y, ind_z, spheres_actor
-    mapper = spheres_actor.GetMapper()
-    pnt_data = mapper.GetInput().GetPointData()
-    colors_array = pnt_data.GetArray('colors')
-    spheres_colors = numpy_support.vtk_to_numpy(colors_array)
-    opacities = []
-    vis = [255] * verts_per_sph
-    inv = [0] * verts_per_sph
-    inds = ind_x & ind_y & ind_z
-    for i, ind in enumerate(inds):
-        if ind:
-            opacities.extend(vis)
-        else:
-            opacities.extend(inv)
-    opacities = np.array(opacities)
-    spheres_colors[:, 3] = opacities
-    colors_array.Modified()
+@vtk.calldata_type(vtk.VTK_OBJECT)
+def vtk_shader_callback(caller, event, calldata=None):
+    global low_ranges, high_ranges
+    if calldata is not None:
+        calldata.SetUniform3f('lowRanges', low_ranges)
+        calldata.SetUniform3f('highRanges', high_ranges)
 
 
 def win_callback(obj, event):
@@ -150,22 +132,20 @@ class _WebTumor(vtk_wslink.ServerProtocol):
         if not _WebTumor.view:
             output_path = os.path.abspath(os.path.dirname(__file__))
             print(output_path)
-            # output_path = '/run/media/guaje/Data/Dev/fury_projs/fury-web/apps/tumor/server'
             xml_file = os.path.join(output_path, 'output00000001.xml')
             mcds = pyMCDS_cells(xml_file, output_path=output_path)  # 23123 cells
             ncells = len(mcds.data['discrete_cells']['ID'])
 
-            global xyz
-            xyz = np.zeros((ncells, 3))
-            xyz[:, 0] = mcds.data['discrete_cells']['position_x']
-            xyz[:, 1] = mcds.data['discrete_cells']['position_y']
-            xyz[:, 2] = mcds.data['discrete_cells']['position_z']
+            centers = np.zeros((ncells, 3))
+            centers[:, 0] = mcds.data['discrete_cells']['position_x']
+            centers[:, 1] = mcds.data['discrete_cells']['position_y']
+            centers[:, 2] = mcds.data['discrete_cells']['position_z']
 
-            rgb = np.zeros((ncells, 3))
+            colors = np.zeros((ncells, 3))
             # default color: yellow
-            rgb[:, 0] = 1
-            rgb[:, 1] = 1
-            rgb[:, 2] = 0
+            colors[:, 0] = 1
+            colors[:, 1] = 1
+            colors[:, 2] = 0
             cell_phase = mcds.data['discrete_cells']['current_phase']
             # cell_phase = cell_phase[idx_keep]
 
@@ -188,41 +168,52 @@ class _WebTumor(vtk_wslink.ServerProtocol):
             # variation in cell colors
             for idx in range(ncells):
                 if cell_type[idx] == 1:
-                    rgb[idx, 0] = 1
-                    rgb[idx, 1] = 1
-                    rgb[idx, 2] = 0
+                    colors[idx, 0] = 1
+                    colors[idx, 1] = 1
+                    colors[idx, 2] = 0
                     # self.yval1 = np.array([(np.count_nonzero((mcds[idx].data['discrete_cells']['cell_type'] == 1) & (mcds[idx].data['discrete_cells']['cycle_model'] < 100) == True)) for idx in range(ds_count)] )
                 if cycle_model[idx] < 100:
                     # rgb[idx, 0] = 0.5
                     # rgb[idx, 1] = 0.5
-                    rgb[idx, 0] = 1.0 - (onco[idx] - onco_min) / onco_range
+                    colors[idx, 0] = 1.0 - (onco[idx] - onco_min)/onco_range
                     # rgb[idx,1] = (onco[idx] - onco_min)/onco_range
-                    rgb[idx, 1] = rgb[idx, 0]
-                    rgb[idx, 2] = 0
+                    colors[idx, 1] = colors[idx, 0]
+                    colors[idx, 2] = 0
                 elif cycle_model[idx] == 100:
-                    rgb[idx, 0] = 1
-                    rgb[idx, 1] = 0
-                    rgb[idx, 2] = 0
+                    colors[idx, 0] = 1
+                    colors[idx, 1] = 0
+                    colors[idx, 2] = 0
                 elif cycle_model[idx] > 100:
-                    rgb[idx, 0] = 0.54  # 139./255
-                    rgb[idx, 1] = 0.27  # 69./255
-                    rgb[idx, 2] = 0.075  # 19./255
-            colors = np.ones((xyz.shape[0], 4))
-            colors[:, :-1] = rgb
+                    colors[idx, 0] = 0.54  # 139./255
+                    colors[idx, 1] = 0.27  # 69./255
+                    colors[idx, 2] = 0.075  # 19./255
 
-            min_xyz = np.min(xyz, axis=0)
-            max_xyz = np.max(xyz, axis=0)
-
-            cell_radii = mcds.data['discrete_cells'][
-                             'total_volume'] * .75 / np.pi
-            cell_radii = np.cbrt(cell_radii)
+            radius = mcds.data['discrete_cells']['total_volume'] * .75 / np.pi
+            radius = np.cbrt(radius)
 
             # FURY specific code
             scene = window.Scene()
 
+            range_centers = \
+                """        
+                uniform vec3 lowRanges;
+                uniform vec3 highRanges;
+
+                bool isVisible(vec3 center)
+                {
+                    bool xValidation = lowRanges.x <= center.x && 
+                                       center.x <= highRanges.x;
+                    bool yValidation = lowRanges.y <= center.y && 
+                                       center.y <= highRanges.y;
+                    bool zValidation = lowRanges.z <= center.z && 
+                                       center.z <= highRanges.z;
+                    return xValidation || yValidation || zValidation;
+                }
+                """
+
             fake_sphere = \
                 """
-                if(opacity == 0)
+                if(!isVisible(centerVertexMCVSOutput))
                     discard;
                 float len = length(point);
                 float radius = 1.;
@@ -235,57 +226,53 @@ class _WebTumor(vtk_wslink.ServerProtocol):
                 fragOutput0 = vec4(max(df_1 * color, sf_1 * vec3(1)), 1);
                 """
 
-            global spheres_actor
-            spheres_actor = actor.billboard(xyz, colors, scales=cell_radii,
-                                            fs_impl=fake_sphere)
+            spheres_actor = actor.billboard(
+                centers, colors, scales=radius, fs_dec=range_centers,
+                fs_impl=fake_sphere)
+
             scene.add(spheres_actor)
 
-            show_m = window.ShowManager(scene, reset_camera=False,
-                                        order_transparent=True, max_peels=0)
+            min_centers = np.min(centers, axis=0)
+            max_centers = np.max(centers, axis=0)
 
+            global low_ranges, high_ranges
+            low_ranges = np.percentile(centers, 50, axis=0)
+            high_ranges = max_centers
+
+            spheres_mapper = spheres_actor.GetMapper()
+            spheres_mapper.AddObserver(vtk.vtkCommand.UpdateShaderEvent,
+                                       vtk_shader_callback)
+
+            show_m = window.ShowManager(scene, reset_camera=False,
+                                        order_transparent=True)
             show_m.initialize()
 
-            global panel
             panel = ui.Panel2D((256, 144), position=(40, 5), color=(1, 1, 1),
                                opacity=.1, align='right')
 
-            thr_x1 = np.percentile(xyz[:, 0], 50)
-            thr_x2 = max_xyz[0]
-            global ind_x
-            ind_x = argviz(thr_x1, thr_x2, xyz, 0)
             slider_clipping_plane_label_x = _WebTumor.build_label(
                 'X Clipping Plane')
             slider_clipping_plane_thrs_x = ui.LineDoubleSlider2D(
                 line_width=3, outer_radius=5, length=115,
-                initial_values=(thr_x1, thr_x2), min_value=min_xyz[0],
-                max_value=max_xyz[0], font_size=12,
-                text_template="{value:.0f}")
+                initial_values=(low_ranges[0], high_ranges[0]),
+                min_value=min_centers[0], max_value=max_centers[0],
+                font_size=12, text_template="{value:.0f}")
 
-            thr_y1 = np.percentile(xyz[:, 1], 50)
-            thr_y2 = max_xyz[1]
-            global ind_y
-            ind_y = argviz(thr_y1, thr_y2, xyz, 1)
             slider_clipping_plane_label_y = _WebTumor.build_label(
                 'Y Clipping Plane')
             slider_clipping_plane_thrs_y = ui.LineDoubleSlider2D(
                 line_width=3, outer_radius=5, length=115,
-                initial_values=(thr_y1, thr_y2), min_value=min_xyz[1],
-                max_value=max_xyz[1], font_size=12,
-                text_template="{value:.0f}")
+                initial_values=(low_ranges[1], high_ranges[1]),
+                min_value=min_centers[1], max_value=max_centers[1],
+                font_size=12, text_template="{value:.0f}")
 
-            thr_z1 = np.percentile(xyz[:, 2], 50)
-            thr_z2 = max_xyz[2]
-            global ind_z
-            ind_z = argviz(thr_z1, thr_z2, xyz, 2)
             slider_clipping_plane_label_z = _WebTumor.build_label(
                 'Z Clipping Plane')
             slider_clipping_plane_thrs_z = ui.LineDoubleSlider2D(
                 line_width=3, outer_radius=5, length=115,
-                initial_values=(thr_z1, thr_z2), min_value=min_xyz[2],
-                max_value=max_xyz[2], font_size=12,
-                text_template="{value:.0f}")
-
-            update_opacities()
+                initial_values=(low_ranges[2], high_ranges[2]),
+                min_value=min_centers[2], max_value=max_centers[2],
+                font_size=12, text_template="{value:.0f}")
 
             slider_clipping_plane_thrs_x.on_change = change_clipping_plane_x
             slider_clipping_plane_thrs_y.on_change = change_clipping_plane_y
