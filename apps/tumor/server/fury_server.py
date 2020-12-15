@@ -247,6 +247,7 @@ class _WebTumor(vtk_wslink.ServerProtocol):
                                         order_transparent=True)
             show_m.initialize()
 
+            global panel
             panel = ui.Panel2D((256, 144), position=(40, 5), color=(1, 1, 1),
                                opacity=.1, align='right')
 
