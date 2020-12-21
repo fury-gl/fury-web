@@ -132,7 +132,7 @@ class _WebTumor(vtk_wslink.ServerProtocol):
         if not _WebTumor.view:
             output_path = os.path.abspath(os.path.dirname(__file__))
             print(output_path)
-            xml_file = os.path.join(output_path, 'output00000001.xml')
+            xml_file = os.path.join(output_path, 'output00000246.xml')
             mcds = pyMCDS_cells(xml_file, output_path=output_path)  # 23123 cells
             ncells = len(mcds.data['discrete_cells']['ID'])
 
