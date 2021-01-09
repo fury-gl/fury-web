@@ -86,5 +86,8 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git
 
+RUN sed -i '/DocumentRoot/ a Header always set Access-Control-Allow-Origin "*"' /etc/apache2/sites-available/001-pvw.conf
+RUN a2enmod headers
+
 # Start the container
 ENTRYPOINT ["/opt/paraviewweb/scripts/server.sh"]
