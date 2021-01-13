@@ -33,14 +33,7 @@ const view = vtkRemoteView.newInstance({
   rpcWheelEvent: 'viewport.mouse.zoom.wheel',
 });
 view.setContainer(divRenderer);
-// Default of .5 causes 2x size labels on high-DPI screens.
-// 1 good for demo, not for production.
-if (location.hostname.split('.')[0] === 'localhost') {
-    view.setInteractiveRatio(1);
-} else {
-    // Scaled image compared to the clients view resolution
-    view.setInteractiveRatio(.75);
-}
+view.setInteractiveRatio(1);
 view.setInteractiveQuality(50); // jpeg quality
 
 window.addEventListener('resize', view.resize);
@@ -70,8 +63,9 @@ clientToConnect.onConnectionClose((httpReq) => {
 // hint: if you use the launcher.py and ws-proxy just leave out sessionURL
 // (it will be provided by the launcher)
 const config = {
-  application: 'tumor',
-  //sessionURL: 'ws://localhost:1234/ws'
+    sessionManagerURL: 'localhost:9000/paraview',
+    //sessionManagerURL: 'http://fury.grg.sice.indiana.edu:9000/paraview',
+    application: 'tumor'
 };
 
 // Connect
