@@ -64,7 +64,6 @@ clientToConnect.onConnectionClose((httpReq) => {
 // (it will be provided by the launcher)
 const config = {
     sessionManagerURL: 'localhost:9000/paraview',
-    //sessionManagerURL: '192.168.1.18:8081/paraview',
     //sessionManagerURL: 'http://fury.grg.sice.indiana.edu:9000/paraview',
     application: 'tumor'
 };
