@@ -673,7 +673,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _styles_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./styles.css */ \"./src/styles.css\");\n/* harmony import */ var vtk_js_Sources_IO_Core_WSLinkClient__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vtk.js/Sources/IO/Core/WSLinkClient */ \"./node_modules/vtk.js/Sources/IO/Core/WSLinkClient/index.js\");\n/* harmony import */ var vtk_js_Sources_Rendering_Misc_RemoteView__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vtk.js/Sources/Rendering/Misc/RemoteView */ \"./node_modules/vtk.js/Sources/Rendering/Misc/RemoteView/index.js\");\n/* harmony import */ var wslink_src_SmartConnect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! wslink/src/SmartConnect */ \"./node_modules/wslink/src/SmartConnect/index.js\");\n\n\n\n\n\n\n\n\nvtk_js_Sources_IO_Core_WSLinkClient__WEBPACK_IMPORTED_MODULE_1__.default.setSmartConnectClass(wslink_src_SmartConnect__WEBPACK_IMPORTED_MODULE_3__.default);\n\ndocument.body.style.padding = '0';\ndocument.body.style.margin = '0';\n\nconst divRenderer = document.createElement('div');\ndocument.body.appendChild(divRenderer);\n\ndivRenderer.style.position = 'relative';\ndivRenderer.style.width = '100vw';\ndivRenderer.style.height = '100vh';\ndivRenderer.style.overflow = 'hidden';\n\n// loading\nconst divLoading = document.createElement('div');\nconst txtLoading = document.createElement('h2');\ntxtLoading.innerHTML = \"Loading...\";\ndivLoading.classList.add(\"loader\");\ntxtLoading.classList.add(\"loadertxt\");\ndivRenderer.appendChild(divLoading);\ndivRenderer.appendChild(txtLoading);\ndivRenderer.classList.add(\"parent\");\n\nconst view = vtk_js_Sources_Rendering_Misc_RemoteView__WEBPACK_IMPORTED_MODULE_2__.default.newInstance({\n  rpcWheelEvent: 'viewport.mouse.zoom.wheel',\n});\nview.setContainer(divRenderer);\n// Default of .5 causes 2x size labels on high-DPI screens.\n// 1 good for demo, not for production.\nif (location.hostname.split('.')[0] === 'localhost') {\n    view.setInteractiveRatio(1);\n} else {\n    // Scaled image compared to the clients view resolution\n    view.setInteractiveRatio(.75);\n}\nview.setInteractiveQuality(50); // jpeg quality\n\nwindow.addEventListener('resize', view.resize);\n\nconst clientToConnect = vtk_js_Sources_IO_Core_WSLinkClient__WEBPACK_IMPORTED_MODULE_1__.default.newInstance();\n\n// Error\nclientToConnect.onConnectionError((httpReq) => {\n  const message =\n    (httpReq && httpReq.response && httpReq.response.error) ||\n    `Connection error`;\n  console.error(message);\n  console.log(httpReq);\n  txtLoading.innerHTML = message;\n});\n\n// Close\nclientToConnect.onConnectionClose((httpReq) => {\n  const message =\n    (httpReq && httpReq.response && httpReq.response.error) ||\n    `Connection close`;\n  console.error(message);\n  console.log(httpReq);\n  txtLoading.innerHTML = message;\n});\n\n// hint: if you use the launcher.py and ws-proxy just leave out sessionURL\n// (it will be provided by the launcher)\nconst config = {\n  application: 'tumor', };\n\n// Connect\nclientToConnect\n  .connect(config)\n  .then((validClient) => {\n    (0,vtk_js_Sources_Rendering_Misc_RemoteView__WEBPACK_IMPORTED_MODULE_2__.connectImageStream)(validClient.getConnection().getSession());\n\n    const session = validClient.getConnection().getSession();\n    view.setSession(session);\n    view.setViewId(-1);\n    view.render();\n\n    divRenderer.removeChild(divLoading);\n    divRenderer.removeChild(txtLoading);\n    divRenderer.classList.remove(\"parent\");\n  })\n  .catch((error) => {\n    console.error(error);\n    txtLoading.innerHTML = message;\n    divRenderer.appendChild(divLoading);\n    divRenderer.appendChild(txtLoading);\n    divRenderer.classList.add(\"parent\");\n  });\n\n//# sourceURL=webpack://fury_web_client/./src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _styles_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./styles.css */ \"./src/styles.css\");\n/* harmony import */ var vtk_js_Sources_IO_Core_WSLinkClient__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vtk.js/Sources/IO/Core/WSLinkClient */ \"./node_modules/vtk.js/Sources/IO/Core/WSLinkClient/index.js\");\n/* harmony import */ var vtk_js_Sources_Rendering_Misc_RemoteView__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vtk.js/Sources/Rendering/Misc/RemoteView */ \"./node_modules/vtk.js/Sources/Rendering/Misc/RemoteView/index.js\");\n/* harmony import */ var wslink_src_SmartConnect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! wslink/src/SmartConnect */ \"./node_modules/wslink/src/SmartConnect/index.js\");\n\n\n\n\n\n\n\n\nvtk_js_Sources_IO_Core_WSLinkClient__WEBPACK_IMPORTED_MODULE_1__.default.setSmartConnectClass(wslink_src_SmartConnect__WEBPACK_IMPORTED_MODULE_3__.default);\n\ndocument.body.style.padding = '0';\ndocument.body.style.margin = '0';\n\nconst divRenderer = document.createElement('div');\ndocument.body.appendChild(divRenderer);\n\ndivRenderer.style.position = 'relative';\ndivRenderer.style.width = '100vw';\ndivRenderer.style.height = '100vh';\ndivRenderer.style.overflow = 'hidden';\n\n// loading\nconst divLoading = document.createElement('div');\nconst txtLoading = document.createElement('h2');\ntxtLoading.innerHTML = \"Loading...\";\ndivLoading.classList.add(\"loader\");\ntxtLoading.classList.add(\"loadertxt\");\ndivRenderer.appendChild(divLoading);\ndivRenderer.appendChild(txtLoading);\ndivRenderer.classList.add(\"parent\");\n\nconst view = vtk_js_Sources_Rendering_Misc_RemoteView__WEBPACK_IMPORTED_MODULE_2__.default.newInstance({\n  rpcWheelEvent: 'viewport.mouse.zoom.wheel',\n});\nview.setContainer(divRenderer);\n// Default of .5 causes 2x size labels on high-DPI screens.\n// 1 good for demo, not for production.\nview.setInteractiveRatio(1);\nview.setInteractiveQuality(50); // jpeg quality\n\nwindow.addEventListener('resize', view.resize);\n\nconst clientToConnect = vtk_js_Sources_IO_Core_WSLinkClient__WEBPACK_IMPORTED_MODULE_1__.default.newInstance();\n\n// Error\nclientToConnect.onConnectionError((httpReq) => {\n  const message =\n    (httpReq && httpReq.response && httpReq.response.error) ||\n    `Connection error`;\n  console.error(message);\n  console.log(httpReq);\n  txtLoading.innerHTML = message;\n});\n\n// Close\nclientToConnect.onConnectionClose((httpReq) => {\n  const message =\n    (httpReq && httpReq.response && httpReq.response.error) ||\n    `Connection close`;\n  console.error(message);\n  console.log(httpReq);\n  txtLoading.innerHTML = message;\n});\n\n// hint: if you use the launcher.py and ws-proxy just leave out sessionURL\n// (it will be provided by the launcher)\nconst config = {\n  application: 'tumor',\n  //sessionURL: 'ws://localhost:1234/ws'\n};\n\n// Connect\nclientToConnect\n  .connect(config)\n  .then((validClient) => {\n    (0,vtk_js_Sources_Rendering_Misc_RemoteView__WEBPACK_IMPORTED_MODULE_2__.connectImageStream)(validClient.getConnection().getSession());\n\n    const session = validClient.getConnection().getSession();\n    view.setSession(session);\n    view.setViewId(-1);\n    view.render();\n\n    divRenderer.removeChild(divLoading);\n    divRenderer.removeChild(txtLoading);\n    divRenderer.classList.remove(\"parent\");\n  })\n  .catch((error) => {\n    console.error(error);\n    txtLoading.innerHTML = message;\n    divRenderer.appendChild(divLoading);\n    divRenderer.appendChild(txtLoading);\n    divRenderer.classList.add(\"parent\");\n  });\n\n//# sourceURL=webpack://fury_web_client/./src/index.js?");
 
 /***/ }),
 
@@ -693,7 +693,7 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -706,17 +706,17 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
+/******/ 	
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/amd define */
 /******/ 	(() => {
@@ -724,12 +724,12 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /******/ 			throw new Error('define cannot be used indirect');
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/amd options */
 /******/ 	(() => {
 /******/ 		__webpack_require__.amdO = {};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -741,7 +741,7 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /******/ 			return getter;
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -753,7 +753,7 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /******/ 			}
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/global */
 /******/ 	(() => {
 /******/ 		__webpack_require__.g = (function() {
@@ -765,12 +765,12 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /******/ 			}
 /******/ 		})();
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop)
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -781,7 +781,7 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
 /******/ 		__webpack_require__.nmd = (module) => {
@@ -790,7 +790,7 @@ eval("/* (ignored) */\n\n//# sourceURL=webpack://fury_web_client/crypto_(ignored
 /******/ 			return module;
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	// startup
 /******/ 	// Load entry module
