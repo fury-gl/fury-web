@@ -63,7 +63,7 @@ clientToConnect.onConnectionClose((httpReq) => {
 // hint: if you use the launcher.py and ws-proxy just leave out sessionURL
 // (it will be provided by the launcher)
 const config = {
-    sessionManagerURL: 'localhost:9000/paraview',
+    // sessionManagerURL: 'localhost:9000/paraview',
     //sessionManagerURL: 'http://fury.grg.sice.indiana.edu:9000/paraview',
     application: 'tumor'
 };
@@ -78,6 +78,9 @@ clientToConnect
     view.setSession(session);
     view.setViewId(-1);
     view.render();
+
+    session.call('tumor.initialize', []);
+    session.call('tumor.update_view', ['{"folder": "test_dir", "fname": "my.xml"}',]);
 
     divRenderer.removeChild(divLoading);
     divRenderer.removeChild(txtLoading);
