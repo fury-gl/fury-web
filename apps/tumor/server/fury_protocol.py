@@ -215,8 +215,8 @@ class TumorProtocol(protocols.vtkWebProtocol):
                                     for i, v in enumerate(self.low_perc)])
         self.high_ranges = np.array([np.percentile(centers[:, i], v)
                                      for i, v in enumerate(self.high_perc)])
-        scene.ResetCamera()
         self.connect_sliders()
+        scene.ResetCamera()
 
     def disconnect_sliders(self):
         self.slider_clipping_plane_thrs_x.on_change = lambda slider: None
@@ -224,22 +224,22 @@ class TumorProtocol(protocols.vtkWebProtocol):
         self.slider_clipping_plane_thrs_z.on_change = lambda slider: None
 
     def connect_sliders(self):
-        self.slider_clipping_plane_thrs_x.left_disk_value = self.low_ranges[0]
-        self.slider_clipping_plane_thrs_x.right_disk_value = self.high_ranges[0]
         self.slider_clipping_plane_thrs_x.min_value = self.min_centers[0]
         self.slider_clipping_plane_thrs_x.max_value = self.max_centers[0]
+        self.slider_clipping_plane_thrs_x.left_disk_value = self.low_ranges[0]
+        self.slider_clipping_plane_thrs_x.right_disk_value = self.high_ranges[0]
         self.slider_clipping_plane_thrs_x.on_change = self.change_clipping_plane_x
 
-        self.slider_clipping_plane_thrs_y.left_disk_value = self.low_ranges[1]
-        self.slider_clipping_plane_thrs_y.right_disk_value = self.high_ranges[1]
         self.slider_clipping_plane_thrs_y.min_value = self.min_centers[1]
         self.slider_clipping_plane_thrs_y.max_value = self.max_centers[1]
+        self.slider_clipping_plane_thrs_y.left_disk_value = self.low_ranges[1]
+        self.slider_clipping_plane_thrs_y.right_disk_value = self.high_ranges[1]
         self.slider_clipping_plane_thrs_y.on_change = self.change_clipping_plane_y
 
-        self.slider_clipping_plane_thrs_z.left_disk_value = self.low_ranges[2]
-        self.slider_clipping_plane_thrs_z.right_disk_value = self.high_ranges[2]
         self.slider_clipping_plane_thrs_z.min_value = self.min_centers[2]
         self.slider_clipping_plane_thrs_z.max_value = self.max_centers[2]
+        self.slider_clipping_plane_thrs_z.left_disk_value = self.low_ranges[2]
+        self.slider_clipping_plane_thrs_z.right_disk_value = self.high_ranges[2]
         self.slider_clipping_plane_thrs_z.on_change = self.change_clipping_plane_z
 
         if len(self.xml_files) > 1:
