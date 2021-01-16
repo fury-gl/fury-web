@@ -215,6 +215,7 @@ class TumorProtocol(protocols.vtkWebProtocol):
                                     for i, v in enumerate(self.low_perc)])
         self.high_ranges = np.array([np.percentile(centers[:, i], v)
                                      for i, v in enumerate(self.high_perc)])
+        scene.ResetCamera()
         self.connect_sliders()
 
     def disconnect_sliders(self):
