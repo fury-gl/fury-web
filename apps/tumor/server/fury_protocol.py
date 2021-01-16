@@ -139,7 +139,7 @@ class TumorProtocol(protocols.vtkWebProtocol):
         scene = ren_win.GetRenderers().GetFirstRenderer()
         showm = self.getSharedObject('SHOWM')
 
-        self.panel = ui.Panel2D((480, 270), position=(-185, 5), color=(1, 1, 1),
+        self.panel = ui.Panel2D((480, 270), position=(5, 5), color=(1, 1, 1),
                                 opacity=.1, align='right')
 
         self.slider_frame_label = build_label('Frame')
@@ -180,6 +180,7 @@ class TumorProtocol(protocols.vtkWebProtocol):
         self.panel.add_element(self.slider_clipping_plane_label_z, (.04, .15))
         self.panel.add_element(self.slider_clipping_plane_thrs_z, (.38, .15))
 
+        scene.ResetCamera()
         scene.add(self.panel)
         self.size = scene.GetSize()
         showm.add_window_callback(self.win_callback)
