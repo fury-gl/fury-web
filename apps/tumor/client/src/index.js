@@ -97,7 +97,9 @@ clientToConnect
     // Listen to messages from parent window
     bindEvent(window, 'message', function (e) {
       console.log(e.data);
-      var data = JSON.parse(e.data);
+      var data = JSON.stringify(e.data);
+      console.log(data);
+      data = JSON.parse(data);
 
       var eventType = "";
       if ('function' in data) {
