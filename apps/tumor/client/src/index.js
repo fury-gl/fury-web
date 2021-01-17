@@ -1,6 +1,7 @@
 import "./styles.css";
 
 import vtkWSLinkClient from 'vtk.js/Sources/IO/Core/WSLinkClient';
+import vtkURLExtract from 'vtk.js/Sources/Common/Core/URLExtract';
 import vtkRemoteView from 'vtk.js/Sources/Rendering/Misc/RemoteView';
 import { connectImageStream } from 'vtk.js/Sources/Rendering/Misc/RemoteView';
 
@@ -60,13 +61,24 @@ clientToConnect.onConnectionClose((httpReq) => {
   txtLoading.innerHTML = message;
 });
 
+// addEventListener support for IE8
+function bindEvent(element, eventName, eventHandler) {
+  if (element.addEventListener) {
+      element.addEventListener(eventName, eventHandler, false);
+  } else if (element.attachEvent) {
+      element.attachEvent('on' + eventName, eventHandler);
+  }
+};
+
 // hint: if you use the launcher.py and ws-proxy just leave out sessionURL
 // (it will be provided by the launcher)
-const config = {
+const baseConfig = {
     // sessionManagerURL: 'localhost:9000/paraview',
     //sessionManagerURL: 'http://fury.grg.sice.indiana.edu:9000/paraview',
     application: 'tumor'
 };
+const userParams = vtkURLExtract.extractURLParameters();
+const config = Object.assign({}, baseConfig, userParams);
 
 // Connect
 clientToConnect
@@ -80,7 +92,27 @@ clientToConnect
     view.render();
 
     session.call('tumor.initialize', []);
-    session.call('tumor.update_view', ['{"folder": "test_dir", "fname": "my.xml"}',]);
+    // session.call('tumor.update_view', ['{"folder": "/pvw/apps/tumor/server", "filename": "output00000246.xml"}',]);
+
+    // Listen to messages from parent window
+    bindEvent(window, 'message', function (e) {
+      console.log(e.data);
+      var data = JSON.parse(e.data);
+
+      var eventType = "";
+      if ('function' in data) {
+        eventType = data["function"];
+      }
+
+      switch (eventType) {
+        case 'update_view':
+          session.call('tumor.update_view', [e.data,]);
+          break;
+        case 'reset':
+          session.call('tumor.reset', []);
+          break;
+      }
+    });
 
     divRenderer.removeChild(divLoading);
     divRenderer.removeChild(txtLoading);

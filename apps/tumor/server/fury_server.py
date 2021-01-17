@@ -22,7 +22,7 @@ be overriden if need be:
 """
 
 
-from fury import actor, ui, window
+from fury import window
 from fury_protocol import FuryProtocol, TumorProtocol
 from vtk.web import protocols
 from vtk.web import wslink as vtk_wslink
@@ -34,7 +34,8 @@ import argparse
 
 def boolean_string(s):
     print(s)
-    if s not in {'false', 'true', '0', '1', 'f', 't', 'False', 'True'}:
+    if s not in ['false', 'true', '0', '1', 'f', 't', 'False', 'True',
+                 '${demodata}']:
         raise ValueError('Not a valid boolean string')
     return s in ['True', 'true', 't', '1']
 
@@ -47,8 +48,8 @@ class _WebTumor(vtk_wslink.ServerProtocol):
 
     @staticmethod
     def add_arguments(parser):
-        parser.add_argument("--load-default", default=0, #type=boolean_string,
-                            dest="demodata",
+        parser.add_argument("--load-default", default=False,
+                            type=boolean_string, dest="demodata",
                             help="add some default data as an example.")
 
     @staticmethod
@@ -56,7 +57,7 @@ class _WebTumor(vtk_wslink.ServerProtocol):
         # Standard args
         _WebTumor.authKey = args.authKey
         # does not work. Ask why
-        _WebTumor.load_default = False  # args.demodata
+        _WebTumor.load_default = args.demodata
 
         print(args.demodata)
         print(args)
