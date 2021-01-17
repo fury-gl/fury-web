@@ -1,5 +1,5 @@
 {
-    "resources": [ {"port_range": [9001, 9050], "host": "localhost"} ],
+    "resources": [ {"port_range": [9001, 9350], "host": "localhost"} ],
     "sessionData": {
       "updir": "/Home"
     },
@@ -151,7 +151,8 @@
           EXTRA_PVPYTHON_ARGS
           "/pvw/apps/tumor/server/fury_server.py",
           "--port", "${port}",
-          "--authKey", "${secret}"
+          "--authKey", "${secret}",
+          "--load-default", "${demodata}"
         ],
         "ready_line" : " Starting factory"
       }

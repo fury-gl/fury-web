@@ -109,9 +109,10 @@ _FAKE_SPHERE = \
 
 class TumorProtocol(protocols.vtkWebProtocol):
 
-    def __init__(self):
+    def __init__(self, load_default=False):
         super().__init__()
 
+        self.load_default = load_default
         self.xml_files = []
         self.bounds = None
         self.min_centers, self.max_centers = [0, 0, 0], [100, 100, 100]
@@ -152,24 +153,24 @@ class TumorProtocol(protocols.vtkWebProtocol):
         self.slider_frame_thr.on_change = self.change_frame
         self.slider_clipping_plane_label_x = build_label('X Clipping Plane')
         self.slider_clipping_plane_thrs_x = ui.LineDoubleSlider2D(
-            line_width=3, outer_radius=5, length=115,
+            line_width=3, outer_radius=8, length=260,
             initial_values=(self.low_ranges[0], self.high_ranges[0]),
             min_value=self.min_centers[0], max_value=self.max_centers[0],
-            font_size=12, text_template="{value:.0f}")
+            font_size=16, text_template="{value:.0f}")
 
         self.slider_clipping_plane_label_y = build_label('Y Clipping Plane')
         self.slider_clipping_plane_thrs_y = ui.LineDoubleSlider2D(
-            line_width=3, outer_radius=5, length=115,
+            line_width=3, outer_radius=8, length=260,
             initial_values=(self.low_ranges[1], self.high_ranges[1]),
             min_value=self.min_centers[1], max_value=self.max_centers[1],
-            font_size=12, text_template="{value:.0f}")
+            font_size=16, text_template="{value:.0f}")
 
         self.slider_clipping_plane_label_z = build_label('Z Clipping Plane')
         self.slider_clipping_plane_thrs_z = ui.LineDoubleSlider2D(
-            line_width=3, outer_radius=5, length=115,
+            line_width=3, outer_radius=8, length=260,
             initial_values=(self.low_ranges[2], self.high_ranges[2]),
             min_value=self.min_centers[2], max_value=self.max_centers[2],
-            font_size=12, text_template="{value:.0f}")
+            font_size=16, text_template="{value:.0f}")
 
         self.panel.add_element(self.slider_frame_label, (.04, .85))
         self.panel.add_element(self.slider_frame_thr, (.38, .85))
@@ -185,14 +186,34 @@ class TumorProtocol(protocols.vtkWebProtocol):
         self.size = scene.GetSize()
         showm.add_window_callback(self.win_callback)
 
+        if self.load_default:
+            print("load default")
+            data = {"folder": os.path.abspath(os.path.dirname(__file__)),
+                    "filename": 'output00000246.xml'
+                    }
+            self.add_frame(data)
+
     @register("tumor.update_view")
+    def add_frame(self, data):
+        if isinstance(data, str):
+            data = json.loads(data)
+
+        self.xml_files.append(data)
+        self.update_frame(data)
+
     def update_frame(self, data):
-        print(data)
-        data = json.loads(data)
-        print(data)
-        centers, colors, radius = read_xml_data()  # folder=folder,
-                                                # filename=fname)
-        print(len(centers))
+        folder = data.get('folder', None)
+        fname = data.get('filename', None)
+        if folder is None or fname is None:
+            print("Null folder or filename ({0}, {1})".format(folder, fname))
+            return
+
+        full_path = os.path.join(folder, fname)
+        if not os.path.isfile(full_path):
+            print(f'file not found : {full_path}')
+
+        centers, colors, radius = read_xml_data(folder=folder,
+                                                filename=fname)
         ren_win = self.getView('-1')
         scene = ren_win.GetRenderers().GetFirstRenderer()
         self.disconnect_sliders()
@@ -223,6 +244,7 @@ class TumorProtocol(protocols.vtkWebProtocol):
         self.slider_clipping_plane_thrs_x.on_change = lambda slider: None
         self.slider_clipping_plane_thrs_y.on_change = lambda slider: None
         self.slider_clipping_plane_thrs_z.on_change = lambda slider: None
+        self.slider_frame_thr.on_change = lambda slider: None
 
     def connect_sliders(self):
         self.slider_clipping_plane_thrs_x.min_value = self.min_centers[0]
@@ -244,8 +266,12 @@ class TumorProtocol(protocols.vtkWebProtocol):
         self.slider_clipping_plane_thrs_z.on_change = self.change_clipping_plane_z
 
         if len(self.xml_files) > 1:
+            self.slider_frame_thr.min_value = 0
+            self.slider_frame_thr.max_value = len(self.xml_files) - 1
+            self.slider_frame_thr.value = len(self.xml_files) - 1
             self.slider_frame_thr.set_visibility(True)
             self.slider_frame_label.set_visibility(True)
+            self.slider_frame_thr.on_change = self.change_frame
 
     def change_clipping_plane_x(self, slider):
         values = slider._values
@@ -276,10 +302,8 @@ class TumorProtocol(protocols.vtkWebProtocol):
 
     def change_frame(self, slider):
         idx_xml = int(slider.value)
-
-        data = {}
-
-        self.update_frame(idx_xml)
+        data = self.xml_files[idx_xml]
+        self.update_frame(data)
 
     @vtk.calldata_type(vtk.VTK_OBJECT)
     def vtk_shader_callback(self, caller, event, calldata=None):

@@ -32,11 +32,34 @@ from wslink import server
 import argparse
 
 
+def boolean_string(s):
+    print(s)
+    if s not in {'false', 'true', '0', '1', 'f', 't', 'False', 'True'}:
+        raise ValueError('Not a valid boolean string')
+    return s in ['True', 'true', 't', '1']
+
+
 class _WebTumor(vtk_wslink.ServerProtocol):
 
     # Application configuration
     authKey = 'wslink-secret'
     view = None
+
+    @staticmethod
+    def add_arguments(parser):
+        parser.add_argument("--load-default", default=0, #type=boolean_string,
+                            dest="demodata",
+                            help="add some default data as an example.")
+
+    @staticmethod
+    def configure(args):
+        # Standard args
+        _WebTumor.authKey = args.authKey
+        # does not work. Ask why
+        _WebTumor.load_default = False  # args.demodata
+
+        print(args.demodata)
+        print(args)
 
     def initialize(self):
         # Bring used components
@@ -57,7 +80,7 @@ class _WebTumor(vtk_wslink.ServerProtocol):
 
         # Custom API
         self.registerVtkWebProtocol(FuryProtocol())
-        self.registerVtkWebProtocol(TumorProtocol())
+        self.registerVtkWebProtocol(TumorProtocol(load_default=_WebTumor.load_default))
 
         # Tell the C++ web app to use no encoding.
         # ParaViewWebPublishImageDelivery must be set to decode=False to match.
@@ -94,19 +117,18 @@ class _WebTumor(vtk_wslink.ServerProtocol):
 # Main: Parse args and start server
 # =============================================================================
 if __name__ == "__main__":
-    description = 'FURY/Web High Performance Spheres web-application'
+    description = 'FURY/Web High Performance Tumor web-application'
 
     # Create argument parser
     parser = argparse.ArgumentParser(description=description)
 
     # Add default arguments
     server.add_arguments(parser)
-
+    _WebTumor.add_arguments(parser)
     # Extract arguments
     args = parser.parse_args()
-
     # Configure our current application
-    _WebTumor.authKey = args.authKey
+    _WebTumor.configure(args)
 
     # Start server
     server.start_webserver(options=args, protocol=_WebTumor)
