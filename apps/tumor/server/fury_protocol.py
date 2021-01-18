@@ -193,24 +193,43 @@ class TumorProtocol(protocols.vtkWebProtocol):
                     }
             self.add_frame(data)
 
+    def is_valid_data(self, data):
+        folder = data.get('folder', None)
+        fname = data.get('filename', None)
+        if folder is None or fname is None:
+            print("Null folder or filename ({0}, {1})".format(folder, fname))
+            return False
+
+        full_path = os.path.join(folder, fname)
+        if not os.path.isfile(full_path):
+            print(f'file not found : {full_path}')
+            return False
+
+        return True
+
     @register("tumor.update_view")
     def add_frame(self, data):
         if isinstance(data, str):
             data = json.loads(data)
 
+        if not self.is_valid_data(data):
+            return
+
         self.xml_files.append(data)
+        if len(self.xml_files) > 1:
+            self.slider_frame_thr.min_value = 0
+            self.slider_frame_thr.max_value = len(self.xml_files) - 1
+            self.slider_frame_thr.value = len(self.xml_files) - 1
+            self.slider_frame_thr.set_visibility(True)
+            self.slider_frame_label.set_visibility(True)
+
         self.update_frame(data)
 
     def update_frame(self, data):
+        if not self.is_valid_data(data):
+            return
         folder = data.get('folder', None)
         fname = data.get('filename', None)
-        if folder is None or fname is None:
-            print("Null folder or filename ({0}, {1})".format(folder, fname))
-            return
-
-        full_path = os.path.join(folder, fname)
-        if not os.path.isfile(full_path):
-            print(f'file not found : {full_path}')
 
         centers, colors, radius = read_xml_data(folder=folder,
                                                 filename=fname)
@@ -265,13 +284,7 @@ class TumorProtocol(protocols.vtkWebProtocol):
         self.slider_clipping_plane_thrs_z.right_disk_value = self.high_ranges[2]
         self.slider_clipping_plane_thrs_z.on_change = self.change_clipping_plane_z
 
-        if len(self.xml_files) > 1:
-            self.slider_frame_thr.min_value = 0
-            self.slider_frame_thr.max_value = len(self.xml_files) - 1
-            self.slider_frame_thr.value = len(self.xml_files) - 1
-            self.slider_frame_thr.set_visibility(True)
-            self.slider_frame_label.set_visibility(True)
-            self.slider_frame_thr.on_change = self.change_frame
+        self.slider_frame_thr.on_change = self.change_frame
 
     def change_clipping_plane_x(self, slider):
         values = slider._values
