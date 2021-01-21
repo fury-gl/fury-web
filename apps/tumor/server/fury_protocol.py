@@ -129,7 +129,8 @@ class TumorProtocol(protocols.vtkWebProtocol):
 
     @register("tumor.reset")
     def reset(self):
-        scene = self.getView('-1')
+        ren_win = self.getView('-1')
+        scene = ren_win.GetRenderers().GetFirstRenderer()
         scene.rm_all()
         self.xml_files = []
         self.create_visualization()
@@ -184,7 +185,8 @@ class TumorProtocol(protocols.vtkWebProtocol):
         scene.ResetCamera()
         scene.add(self.panel)
         self.size = scene.GetSize()
-        showm.add_window_callback(self.win_callback)
+        # showm.add_window_callback(self.win_callback)
+        showm.render()
 
         if self.load_default:
             print("load default")
@@ -224,6 +226,8 @@ class TumorProtocol(protocols.vtkWebProtocol):
             self.slider_frame_label.set_visibility(True)
 
         self.update_frame(data)
+        showm = self.getSharedObject('SHOWM')
+        showm.render()
 
     def update_frame(self, data):
         if not self.is_valid_data(data):
@@ -327,8 +331,8 @@ class TumorProtocol(protocols.vtkWebProtocol):
     def win_callback(self, obj, event):
         if self.size != obj.GetSize():
             size_old = self.size
-            size = obj.GetSize()
-            size_change = [size[0] - size_old[0], 0]
+            self.size = obj.GetSize()
+            size_change = [self.size[0] - size_old[0], 0]
             self.panel.re_align(size_change)
 
 
